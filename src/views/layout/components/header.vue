@@ -2,7 +2,7 @@
     <div class="header">
         <div>
             <i class="el-icon-s-fold"></i>
-            <span>后台管理系统</span>
+            <span>后台管理系统1</span>
         </div>
 
         <el-dropdown>
