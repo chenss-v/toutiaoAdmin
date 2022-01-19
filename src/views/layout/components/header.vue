@@ -7,8 +7,9 @@
 
         <el-dropdown>
             <div class="avatar-wrap">
-                <img class="avatar" src="./images/touxiang.jpg" alt="">
-                <span>用户名称</span><i class="el-icon-arrow-down el-icon--right"></i>
+                <img class="avatar" :src="user.photo" alt="">
+                <span>{{ user.name }}</span>
+                <i class="el-icon-arrow-down el-icon--right"></i>
             </div>
             <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item>设置</el-dropdown-item>
@@ -19,14 +20,26 @@
 </template>
 
 <script>
+import { getUserProfile } from '@/network/user'
+
 export default {
   data () {
     return {
-
+      user: {}
     }
   },
   components: {
 
+  },
+  methods: {
+    loadUserPrlfile () {
+      getUserProfile().then(res => {
+        this.user = res.data.data
+      })
+    }
+  },
+  created () {
+    this.loadUserPrlfile()
   }
 }
 </script>

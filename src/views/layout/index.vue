@@ -21,7 +21,6 @@ import AppHeader from './components/header.vue'
 export default {
   data () {
     return {
-
     }
   },
   components: {
