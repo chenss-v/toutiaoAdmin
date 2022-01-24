@@ -1,19 +1,4 @@
 import axios from 'axios'
-
-// 配置 axios
-// export function request (config) {
-//   const instance = axios.create({
-//     baseURL: 'http://ttapi.research.itcast.cn/',
-//     timeout: 5000
-//   })
-
-//   // 请求拦截
-//   instance.interceptors.request.use(config => {
-//     return config
-//   }, err => {
-//     return err
-//   })
-
 //   // 响应拦截
 //   instance.interceptors.response.use(res => {
 //     // console.log(res)
@@ -28,5 +13,18 @@ const request = axios.create({
   baseURL: 'http://api-toutiao-web.itheima.net' // 最新接口地址
   // baseURL: 'http://ttapi.research.itcast.cn/' // 请求的基础路径
 })
+
+// 请求拦截
+request.interceptors.request.use(
+  function (config) {
+    const user = JSON.parse(window.localStorage.getItem('user'))
+    if (user) {
+      config.headers.Authorization = `Bearer ${user.token}`
+    }
+    return config
+  }, function (err) {
+    return Promise.reject(err)
+  }
+)
 
 export default request

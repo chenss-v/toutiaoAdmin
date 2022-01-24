@@ -86,6 +86,7 @@ export default {
           type: 'success'
         })
         this.loginLoading = false
+        window.localStorage.setItem('user', JSON.stringify(res.data.data))
         this.$router.push('/home')
       }).catch(err => {
         // 登录失败
