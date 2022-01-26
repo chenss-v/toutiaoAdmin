@@ -13,7 +13,7 @@
             </div>
             <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item>设置</el-dropdown-item>
-                <el-dropdown-item>退出登录</el-dropdown-item>
+                <el-dropdown-item @click.native="onLogout">退出登录</el-dropdown-item>
             </el-dropdown-menu>
         </el-dropdown>
     </div>
@@ -28,18 +28,31 @@ export default {
       user: {}
     }
   },
-  components: {
-
+  components: {},
+  created () {
+    this.loadUserPrlfile()
   },
   methods: {
     loadUserPrlfile () {
       getUserProfile().then(res => {
         this.user = res.data.data
       })
+    },
+    onLogout () {
+      this.$confirm('是否确认退出当前账号?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        window.localStorage.removeItem('user')
+        this.$router.push('/login')
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消退出'
+        })
+      })
     }
-  },
-  created () {
-    this.loadUserPrlfile()
   }
 }
 </script>
