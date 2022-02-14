@@ -38,7 +38,12 @@
         <span>根据筛选条件共查询到条结果： </span>
       </div>
       <el-table :data="acticle" stripe border style="width: 100%;margin-bottom: 20px;">
-          <el-table-column prop="date" label="封面"></el-table-column>
+          <el-table-column prop="date" label="封面">
+            <template slot-scope="scope">
+              <img v-if="scope.row.cover.images[0]" class="acticle-cover" :src="scope.row.cover.images[0]" alt="">
+              <img v-else class="acticle-cover" src="./cover.jpg" alt="">
+            </template>
+          </el-table-column>
           <el-table-column prop="title" label="标题"></el-table-column>
           <el-table-column label="状态">
             <template slot-scope="scope">
@@ -126,5 +131,9 @@ export default {
 <style scoped lang="less">
 .box-card {
   margin-bottom: 20px;
+}
+.acticle-cover{
+  width: 100px;
+  background-size: cover;
 }
 </style>
