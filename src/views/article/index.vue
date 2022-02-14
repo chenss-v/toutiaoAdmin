@@ -37,12 +37,32 @@
       <div slot="header" class="clearfix">
         <span>根据筛选条件共查询到条结果： </span>
       </div>
-      <el-table :data="tableData" stripe border style="width: 100%;margin-bottom: 20px;">
-          <el-table-column prop="date" label="日期" width="180"></el-table-column>
-          <el-table-column prop="name" label="姓名" width="180"></el-table-column>
-          <el-table-column prop="address" label="地址"></el-table-column>
+      <el-table :data="acticle" stripe border style="width: 100%;margin-bottom: 20px;">
+          <el-table-column prop="date" label="封面"></el-table-column>
+          <el-table-column prop="title" label="标题"></el-table-column>
+          <el-table-column label="状态">
+            <template slot-scope="scope">
+              <el-tag v-if="scope.row.status === 0">草稿</el-tag>
+              <el-tag v-else-if="scope.row.status === 1" type="warning">待审核</el-tag>
+              <el-tag v-else-if="scope.row.status === 2" type="success">审核通过</el-tag>
+              <el-tag v-else-if="scope.row.status === 3" type="danger">审核失败</el-tag>
+              <el-tag v-else-if="scope.row.status === 4" type="info">已删除</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column prop="pubdate" label="发布时间"></el-table-column>
+          <el-table-column prop="address" label="操作">
+            <template slot-scope="scope">
+              <el-button
+                size="mini"
+                @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+              <el-button
+                size="mini"
+                type="danger"
+                @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+            </template>
+          </el-table-column>
       </el-table>
-      <el-pagination layout="prev, pager, next" :total="1000"></el-pagination>
+      <el-pagination background layout="prev, pager, next" :total="1000"></el-pagination>
     </el-card>
   </div>
 </template>
