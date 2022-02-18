@@ -9,33 +9,33 @@
       </div>
       <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
         <el-form-item label="状态" prop="resource">
-          <el-radio-group v-model="ruleForm.resource">
-            <el-radio label="全部"></el-radio>
-            <el-radio label="草稿"></el-radio>
-            <el-radio label="待审核"></el-radio>
-            <el-radio label="审核通过"></el-radio>
-            <el-radio label="审核失败"></el-radio>
-            <el-radio label="已删除"></el-radio>
+          <el-radio-group v-model="status">
+            <el-radio :label="null">全部</el-radio>
+            <el-radio :label="0">草稿</el-radio>
+            <el-radio :label="1">待审核</el-radio>
+            <el-radio :label="2">审核通过</el-radio>
+            <el-radio :label="3">审核失败</el-radio>
+            <el-radio :label="4">已删除</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="频道" prop="region">
-          <el-select v-model="ruleForm.region" placeholder="请选择频道">
-            <el-option label="区域一" value="shanghai"></el-option>
-            <el-option label="区域二" value="beijing"></el-option>
+          <el-select v-model="channelId" placeholder="请选择频道">
+            <el-option label="全部" :value="null"></el-option>
+            <el-option :label="channel.name" :value="channel.id" v-for="(channel, index) in channels" :key="index"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="日期">
-          <el-date-picker v-model="ruleForm.date1" type="datetimerange" start-placeholder="开始日期" end-placeholder="结束日期" :default-time="['12:00:00']"></el-date-picker>
+          <el-date-picker v-model="rangDate" type="datetimerange" start-placeholder="开始日期" end-placeholder="结束日期" :default-time="['12:00:00']" format="yyyy-MM-dd" value-format="yyyy-MM-dd"></el-date-picker>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="submitForm('ruleForm')">筛选</el-button>
+          <el-button type="primary" @click="loadActicles(1)">查询</el-button>
         </el-form-item>
       </el-form>
     </el-card>
 
     <el-card class="box-card">
       <div slot="header" class="clearfix">
-        <span>根据筛选条件共查询到条结果： </span>
+        <span>根据筛选条件共查询到{{ totalCount }}条结果： </span>
       </div>
       <el-table :data="acticle" stripe border style="width: 100%;margin-bottom: 20px;">
           <el-table-column prop="date" label="封面">
@@ -67,13 +67,13 @@
             </template>
           </el-table-column>
       </el-table>
-      <el-pagination background layout="prev, pager, next" :total="1000"></el-pagination>
+      <el-pagination background layout="prev, pager, next" :total="totalCount" @current-change="onCurrentChange"  :page-size="pageSize"/>
     </el-card>
   </div>
 </template>
 
 <script>
-import { getActicles } from '@/network/article'
+import { getActicles, getActiclesChannels } from '@/network/article'
 
 export default {
   name: 'ArticleIndex',
@@ -89,38 +89,40 @@ export default {
         resource: '',
         desc: ''
       },
-      tableData: [{
-        date: '2016-05-02',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1518 弄'
-      },
-      {
-        date: '2016-05-04',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1517 弄'
-      },
-      {
-        date: '2016-05-01',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1519 弄'
-      },
-      {
-        date: '2016-05-03',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1516 弄'
-      }],
-      acticle: [
-
-      ]
+      acticle: [],
+      totalCount: 0,
+      pageSize: 10,
+      status: null,
+      channels: [],
+      channelId: null,
+      rangDate: null
     }
   },
   created () {
-    this.loadActicles()
+    this.loadActicles(1)
+    this.loadChannels()
   },
   methods: {
-    loadActicles () {
-      getActicles().then(res => {
-        this.acticle = res.data.data.results
+    loadActicles (page = 1) {
+      getActicles({
+        page,
+        per_page: this.pageSize,
+        status: this.status,
+        channel_id: this.channelId,
+        begin_pubdate: this.rangDate ? this.rangDate[0] : null,
+        end_pubdate: this.rangDate ? this.rangDate[1] : null
+      }).then(res => {
+        const { results, total_count: totalCount } = res.data.data
+        this.acticle = results
+        this.totalCount = totalCount
+      })
+    },
+    onCurrentChange (page = 1) {
+      this.loadActicles(page)
+    },
+    loadChannels () {
+      getActiclesChannels().then(res => {
+        this.channels = res.data.data.channels
       })
     }
   },

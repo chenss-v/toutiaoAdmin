@@ -7,3 +7,10 @@ export const getActicles = params => {
     params
   })
 }
+
+export const getActiclesChannels = () => {
+  return request({
+    method: 'GET',
+    url: '/mp/v1_0/channels'
+  })
+}
