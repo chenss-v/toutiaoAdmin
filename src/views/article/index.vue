@@ -28,7 +28,7 @@
           <el-date-picker v-model="rangDate" type="datetimerange" start-placeholder="开始日期" end-placeholder="结束日期" :default-time="['12:00:00']" format="yyyy-MM-dd" value-format="yyyy-MM-dd"></el-date-picker>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="loadActicles(1)">查询</el-button>
+          <el-button type="primary" :disabled="loading" @click="loadActicles(1)">查询</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -37,7 +37,7 @@
       <div slot="header" class="clearfix">
         <span>根据筛选条件共查询到{{ totalCount }}条结果： </span>
       </div>
-      <el-table :data="acticle" stripe border style="width: 100%;margin-bottom: 20px;">
+      <el-table :data="acticle" stripe border style="width: 100%;margin-bottom: 20px;" v-loading="loading">
           <el-table-column prop="date" label="封面">
             <template slot-scope="scope">
               <img v-if="scope.row.cover.images[0]" class="acticle-cover" :src="scope.row.cover.images[0]" alt="">
@@ -63,17 +63,18 @@
               <el-button
                 size="mini"
                 type="danger"
-                @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+                circle
+                @click="onDeleteArticle(scope.row.id)">删除</el-button>
             </template>
           </el-table-column>
       </el-table>
-      <el-pagination background layout="prev, pager, next" :total="totalCount" @current-change="onCurrentChange"  :page-size="pageSize"/>
+      <el-pagination background layout="prev, pager, next" :current-page.sync="page" :total="totalCount" @current-change="onCurrentChange"  :page-size="pageSize" :disabled="loading"/>
     </el-card>
   </div>
 </template>
 
 <script>
-import { getActicles, getActiclesChannels } from '@/network/article'
+import { getActicles, getActiclesChannels, getActiclesDelete } from '@/network/article'
 
 export default {
   name: 'ArticleIndex',
@@ -95,7 +96,9 @@ export default {
       status: null,
       channels: [],
       channelId: null,
-      rangDate: null
+      rangDate: null,
+      loading: true,
+      page: 1
     }
   },
   created () {
@@ -104,6 +107,7 @@ export default {
   },
   methods: {
     loadActicles (page = 1) {
+      this.loading = true
       getActicles({
         page,
         per_page: this.pageSize,
@@ -115,6 +119,7 @@ export default {
         const { results, total_count: totalCount } = res.data.data
         this.acticle = results
         this.totalCount = totalCount
+        this.loading = false
       })
     },
     onCurrentChange (page = 1) {
@@ -123,6 +128,22 @@ export default {
     loadChannels () {
       getActiclesChannels().then(res => {
         this.channels = res.data.data.channels
+      })
+    },
+    onDeleteArticle (articleId) {
+      this.$confirm('是否确认删除?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        getActiclesDelete(articleId.toString()).then(res => {
+          this.loadActicles(this.page)
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        })
       })
     }
   },
