@@ -18,6 +18,17 @@ export const getActiclesChannels = () => {
 export const getActiclesDelete = articleId => {
   return request({
     method: 'Detele',
-    url: `/mp/v1_0/acticles/${articleId}`
+    url: `/mp/v1_0/articles/${articleId}`
+  })
+}
+
+export const addArticle = (data, draft = false) => {
+  return request({
+    method: 'POST',
+    url: '/mp/v1_0/articles',
+    params: {
+      draft
+    },
+    data
   })
 }
