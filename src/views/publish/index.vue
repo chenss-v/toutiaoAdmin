@@ -38,7 +38,7 @@
 </template>
 
 <script>
-import { getActiclesChannels, addArticle } from '@/network/article'
+import { getActiclesChannels, addArticle, getArticle } from '@/network/article'
 
 export default {
   name: 'PublishIndex',
@@ -59,11 +59,14 @@ export default {
   components: {},
   created () {
     this.loadChannels()
+
+    if (this.$route.query.id) {
+      this.loadArticle()
+    }
   },
   methods: {
     onSubmit (draft = false) {
       addArticle(this.article, draft).then(res => {
-        console.log(res)
         this.$message({
           message: '发布成功',
           type: 'success'
@@ -73,6 +76,11 @@ export default {
     loadChannels () {
       getActiclesChannels().then(res => {
         this.channels = res.data.data.channels
+      })
+    },
+    loadArticle () {
+      getArticle(this.$route.query.id).then(res => {
+        this.article = res.data.data
       })
     }
   }

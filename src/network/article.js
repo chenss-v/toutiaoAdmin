@@ -32,3 +32,21 @@ export const addArticle = (data, draft = false) => {
     data
   })
 }
+
+export const updateArticle = (articleId, draft = false, data) => {
+  return request({
+    method: 'PUT',
+    url: `/mp/v1_0/articles/${articleId}`,
+    params: {
+      draft
+    },
+    data
+  })
+}
+
+export const getArticle = (articleId) => {
+  return request({
+    method: 'GET',
+    url: `/mp/v1_0/articles/${articleId}`
+  })
+}
