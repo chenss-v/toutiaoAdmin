@@ -4,7 +4,7 @@
         <div slot="header" class="clearfix">
             <el-breadcrumb separator-class="el-icon-arrow-right">
                 <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
-                <el-breadcrumb-item>发布文章</el-breadcrumb-item>
+                <el-breadcrumb-item>{{ $route.query.id ? '修改内容' : '发布内容'}}</el-breadcrumb-item>
             </el-breadcrumb>
         </div>
         <el-form ref="from" :model="article" label-width="80px">
@@ -38,7 +38,7 @@
 </template>
 
 <script>
-import { getActiclesChannels, addArticle, getArticle } from '@/network/article'
+import { getActiclesChannels, addArticle, getArticle, updateArticle } from '@/network/article'
 
 export default {
   name: 'PublishIndex',
@@ -66,12 +66,24 @@ export default {
   },
   methods: {
     onSubmit (draft = false) {
-      addArticle(this.article, draft).then(res => {
-        this.$message({
-          message: '发布成功',
-          type: 'success'
+      if (this.$route.query.id) {
+        updateArticle(this.$route.query.id, draft, this.article).then(res => {
+          console.log(res)
+          this.$message({
+            message: `${draft ? '存入草稿' : '修改'}成功`,
+            type: 'success'
+          })
+          this.$router.push('/article')
         })
-      })
+      } else {
+        addArticle(this.article, draft).then(res => {
+          this.$message({
+            message: `${draft ? '存入草稿' : '发布'}成功`,
+            type: 'success'
+          })
+        })
+        this.$router.push('/article')
+      }
     },
     loadChannels () {
       getActiclesChannels().then(res => {
