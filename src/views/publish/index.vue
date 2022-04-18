@@ -12,8 +12,8 @@
                 <el-input v-model="article.title"></el-input>
             </el-form-item>
             <el-form-item label="内容：">
-                <el-input type="textarea" v-model="article.content"></el-input>
-            </el-form-item>
+                <el-tiptap lang="zh" v-model="article.content" :extensions="extensions" height="350" placeholder="请输入文章内容"/>
+                </el-form-item>
             <el-form-item label="封面：">
                 <el-radio-group v-model="article.cover.type">
                 <el-radio :label="1">单图</el-radio>
@@ -39,6 +39,22 @@
 
 <script>
 import { getActiclesChannels, addArticle, getArticle, updateArticle } from '@/network/article'
+import {
+  ElementTiptap,
+  Doc,
+  Text,
+  Paragraph,
+  Heading,
+  Bold,
+  Underline,
+  Italic,
+  Strike,
+  ListItem,
+  BulletList,
+  OrderedList,
+  Image
+} from 'element-tiptap'
+import 'element-tiptap/lib/index.css'
 
 export default {
   name: 'PublishIndex',
@@ -53,10 +69,26 @@ export default {
         },
         channel_id: null
       },
-      channels: []
+      channels: [],
+      extensions: [
+        new Doc(),
+        new Text(),
+        new Paragraph(),
+        new Heading({ level: 5 }),
+        new Bold({ bubble: true }),
+        new Underline({ bubble: true, menubar: false }),
+        new Italic(),
+        new Strike(),
+        new ListItem(),
+        new BulletList(),
+        new OrderedList(),
+        new Image()
+      ]
     }
   },
-  components: {},
+  components: {
+    'el-tiptap': ElementTiptap
+  },
   created () {
     this.loadChannels()
 
