@@ -7,11 +7,11 @@
                 <el-breadcrumb-item>{{ $route.query.id ? '修改内容' : '发布内容'}}</el-breadcrumb-item>
             </el-breadcrumb>
         </div>
-        <el-form ref="from" :model="article" label-width="80px">
-            <el-form-item label="标题：">
+        <el-form :model="article" :rules="formRules" label-width="80px" ref="publish-form">
+            <el-form-item label="标题：" prop="title">
                 <el-input v-model="article.title"></el-input>
             </el-form-item>
-            <el-form-item label="内容：">
+            <el-form-item label="内容：" prop="content">
                 <el-tiptap lang="zh" v-model="article.content" :extensions="extensions" height="350" placeholder="请输入文章内容"/>
                 </el-form-item>
             <el-form-item label="封面：">
@@ -22,7 +22,7 @@
                 <el-radio :label="-1">自动</el-radio>
                 </el-radio-group>
             </el-form-item>
-            <el-form-item label="频道：">
+            <el-form-item label="频道：" prop="channel_id">
                 <el-select v-model="article.channel_id" placeholder="请选择频道">
                   <el-option label="全部" :value="null"></el-option>
                   <el-option :label="channel.name" :value="channel.id" v-for="(channel, index) in channels" :key="index"></el-option>
@@ -39,6 +39,7 @@
 
 <script>
 import { getActiclesChannels, addArticle, getArticle, updateArticle } from '@/network/article'
+import { uploadImage } from '@/network/image'
 import {
   ElementTiptap,
   Doc,
@@ -52,7 +53,8 @@ import {
   ListItem,
   BulletList,
   OrderedList,
-  Image
+  Image,
+  TextColor
 } from 'element-tiptap'
 import 'element-tiptap/lib/index.css'
 
@@ -82,8 +84,38 @@ export default {
         new ListItem(),
         new BulletList(),
         new OrderedList(),
-        new Image()
-      ]
+        new Image({
+          uploadRequest (file) {
+            const fd = new FormData()
+            fd.append('image', file)
+            return uploadImage(fd).then(res => {
+              return res.data.data.url
+            })
+          }
+        }),
+        new TextColor()
+      ],
+      formRules: {
+        title: [
+          { required: true, message: '请输入标题', trigger: 'blur' },
+          { min: 3, max: 30, message: '长度在 3 到 30 个字符', trigger: 'blur' }
+        ],
+        content: [
+          {
+            validator (rule, value, callback) {
+              if (value === '<p></p>') {
+                callback(new Error('请输入内容'))
+              } else {
+                callback()
+              }
+            }
+          },
+          { required: true, message: '请输入内容', trigger: 'blur' }
+        ],
+        channel_id: [
+          { required: true, message: '请选择频道' }
+        ]
+      }
     }
   },
   components: {
@@ -98,24 +130,29 @@ export default {
   },
   methods: {
     onSubmit (draft = false) {
-      if (this.$route.query.id) {
-        updateArticle(this.$route.query.id, draft, this.article).then(res => {
-          console.log(res)
-          this.$message({
-            message: `${draft ? '存入草稿' : '修改'}成功`,
-            type: 'success'
+      this.$refs['publish-form'].validator(valid => {
+        if (!valid) {
+          return
+        }
+        if (this.$route.query.id) {
+          updateArticle(this.$route.query.id, draft, this.article).then(res => {
+            console.log(res)
+            this.$message({
+              message: `${draft ? '存入草稿' : '修改'}成功`,
+              type: 'success'
+            })
+            this.$router.push('/article')
+          })
+        } else {
+          addArticle(this.article, draft).then(res => {
+            this.$message({
+              message: `${draft ? '存入草稿' : '发布'}成功`,
+              type: 'success'
+            })
           })
           this.$router.push('/article')
-        })
-      } else {
-        addArticle(this.article, draft).then(res => {
-          this.$message({
-            message: `${draft ? '存入草稿' : '发布'}成功`,
-            type: 'success'
-          })
-        })
-        this.$router.push('/article')
-      }
+        }
+      })
     },
     loadChannels () {
       getActiclesChannels().then(res => {
