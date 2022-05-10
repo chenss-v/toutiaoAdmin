@@ -8,11 +8,12 @@
           </el-breadcrumb>
         </div>
         <!-- 面包屑导航 -->
-      <div style="padding-bottom: 20px">
-        <el-radio-group v-model="radio1" size="mini">
-          <el-radio-button label="全部"></el-radio-button>
-          <el-radio-button label="收藏"></el-radio-button>
+      <div class="action-head">
+        <el-radio-group v-model="radio1" size="mini" @change="onCollectChange">
+          <el-radio-button :label="false" @click.native="loadImages(false)">全部</el-radio-button>
+          <el-radio-button :label="true" @click.native="loadImages(true)">收藏</el-radio-button>
         </el-radio-group>
+        <el-button size="mini" type="success" @click="dialogUploadVisible = true">上传素材</el-button>
       </div>
       <el-row :gutter="10">
         <el-col :xs="12" :lg="4" :md="6" :sm="6" v-for="(img, index) in images" :key="index">
@@ -20,6 +21,9 @@
         </el-col>
       </el-row>
     </el-card>
+
+    <el-dialog title="上传素材" :visible.sync="dialogUploadVisible" :append-to-body="true">
+    </el-dialog>
   </div>
 </template>
 
@@ -30,26 +34,36 @@ export default {
   name: 'ImageIndex',
   data () {
     return {
-      radio1: '全部',
-      images: []
+      radio1: false,
+      images: [],
+      dialogUploadVisible: false
     }
   },
   components: {
 
   },
   created () {
-    this.loadImages()
+    this.loadImages(false)
   },
   methods: {
-    loadImages () {
-      getImage().then(res => {
+    loadImages (collect = false) {
+      getImage({
+        collect
+      }).then(res => {
         this.images = res.data.data.results
       })
+    },
+    onCollectChange (value) {
+      this.loadImages(value)
     }
   }
 }
 </script>
 
 <style scoped lang="less">
-
+.action-head{
+  padding-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+}
 </style>
