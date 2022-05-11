@@ -20,9 +20,29 @@
           <el-image style="height: 100px" :src="img.url" :fit="fit"></el-image>
         </el-col>
       </el-row>
+      <el-pagination
+        layout="prev, pager, next"
+        background
+        :total="totalCount"
+        :page-size="pageSize"
+        :current-page.sync="page"
+        @current-change="onPageChange">
+      </el-pagination>
     </el-card>
 
     <el-dialog title="上传素材" :visible.sync="dialogUploadVisible" :append-to-body="true">
+        <el-upload
+          class="upload-demo"
+          drag
+          action="http://api-toutiao-web.itheima.net/mp/v1_0/user/images"
+          :headers="uploadHeaders"
+          name="image"
+          :on-success="onUploadSuccess"
+          multiple>
+          <i class="el-icon-upload"></i>
+          <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+          <div class="el-upload__tip" slot="tip">只能上传jpg/png文件，且不超过500kb</div>
+        </el-upload>
     </el-dialog>
   </div>
 </template>
@@ -33,28 +53,44 @@ import { getImage } from '@/network/image'
 export default {
   name: 'ImageIndex',
   data () {
+    const user = JSON.parse(window.localStorage.getItem('user'))
     return {
       radio1: false,
       images: [],
-      dialogUploadVisible: false
+      dialogUploadVisible: false,
+      uploadHeaders: {
+        Authorization: `Bearer ${user.token}`
+      },
+      totalCount: 0,
+      pageSize: 20
     }
   },
   components: {
 
   },
   created () {
-    this.loadImages(false)
+    this.loadImages(1)
   },
   methods: {
-    loadImages (collect = false) {
+    loadImages (page = 1) {
       getImage({
-        collect
+        collect: this.collect,
+        page,
+        per_page: this.pageSize
       }).then(res => {
         this.images = res.data.data.results
+        this.totalCount = res.data.data.total_count
       })
     },
     onCollectChange (value) {
       this.loadImages(value)
+    },
+    onUploadSuccess () {
+      this.dialogUploadVisible = false
+      this.loadImages(this.page)
+    },
+    onPageChange (page) {
+      this.loadImages(page)
     }
   }
 }
