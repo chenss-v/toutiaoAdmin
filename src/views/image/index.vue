@@ -9,15 +9,29 @@
         </div>
         <!-- 面包屑导航 -->
       <div class="action-head">
-        <el-radio-group v-model="radio1" size="mini" @change="onCollectChange">
-          <el-radio-button :label="false" @click.native="loadImages(false)">全部</el-radio-button>
-          <el-radio-button :label="true" @click.native="loadImages(true)">收藏</el-radio-button>
+        <el-radio-group v-model="collect" size="mini" @change="loadImages(1)">
+          <el-radio-button :label="false">全部</el-radio-button>
+          <el-radio-button :label="true">收藏</el-radio-button>
         </el-radio-group>
         <el-button size="mini" type="success" @click="dialogUploadVisible = true">上传素材</el-button>
       </div>
       <el-row :gutter="10">
-        <el-col :xs="12" :lg="4" :md="6" :sm="6" v-for="(img, index) in images" :key="index">
+        <el-col class="image-item" :xs="12" :lg="4" :md="6" :sm="6" v-for="(img, index) in images" :key="index">
           <el-image style="height: 100px" :src="img.url" :fit="fit"></el-image>
+          <div class="image-action">
+            <el-button
+              :icon="img.is_collected ? 'el-icon-star-on' : 'el-icon-star-off'"
+              circle
+              size="small"
+              @click="onCollect(img)"
+              :loading="img.loading"
+            ></el-button>
+            <el-button
+              size="small"
+              icon="el-icon-delete-solid"
+              circl
+            ></el-button>
+          </div>
         </el-col>
       </el-row>
       <el-pagination
@@ -48,7 +62,7 @@
 </template>
 
 <script>
-import { getImage } from '@/network/image'
+import { getImage, collectImage } from '@/network/image'
 
 export default {
   name: 'ImageIndex',
@@ -62,7 +76,8 @@ export default {
         Authorization: `Bearer ${user.token}`
       },
       totalCount: 0,
-      pageSize: 20
+      pageSize: 20,
+      page: 1
     }
   },
   components: {
@@ -73,12 +88,17 @@ export default {
   },
   methods: {
     loadImages (page = 1) {
+      this.page = page
       getImage({
         collect: this.collect,
         page,
         per_page: this.pageSize
       }).then(res => {
-        this.images = res.data.data.results
+        const results = res.data.data.results
+        results.forEach(img => {
+          img.loading = false
+        })
+        this.images = results
         this.totalCount = res.data.data.total_count
       })
     },
@@ -91,6 +111,13 @@ export default {
     },
     onPageChange (page) {
       this.loadImages(page)
+    },
+    onCollect (img) {
+      img.loading = true
+      collectImage(img.id, !img.is_collected).then(res => {
+        img.is_collected = !img.is_collected
+        img.loading = false
+      })
     }
   }
 }
@@ -101,5 +128,21 @@ export default {
   padding-bottom: 20px;
   display: flex;
   justify-content: space-between;
+}
+.image-item{
+  position: relative;
+}
+.image-action{
+  height: 40px;
+  background-color: rgba(204, 204, 204, .5);
+  position: absolute;
+  bottom: 4px;
+  left: 5px;
+  right: 5px;
+  font-size: 25px;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  color: #fff;
 }
 </style>
