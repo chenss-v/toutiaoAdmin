@@ -25,3 +25,10 @@ export const collectImage = (imageId, collect) => {
     }
   })
 }
+
+export const deleteImage = imageId => {
+  return request({
+    method: 'DELETE',
+    url: `/mp/v1_0/user/images/${imageId}`
+  })
+}

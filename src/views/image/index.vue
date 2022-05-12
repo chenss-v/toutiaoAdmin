@@ -20,6 +20,7 @@
           <el-image style="height: 100px" :src="img.url" :fit="fit"></el-image>
           <div class="image-action">
             <el-button
+              type="warning"
               :icon="img.is_collected ? 'el-icon-star-on' : 'el-icon-star-off'"
               circle
               size="small"
@@ -27,9 +28,12 @@
               :loading="img.loading"
             ></el-button>
             <el-button
+              type="danger"
               size="small"
               icon="el-icon-delete-solid"
               circl
+              @click="onDelete(img)"
+              :loading="img.loading"
             ></el-button>
           </div>
         </el-col>
@@ -62,7 +66,7 @@
 </template>
 
 <script>
-import { getImage, collectImage } from '@/network/image'
+import { getImage, collectImage, deleteImage } from '@/network/image'
 
 export default {
   name: 'ImageIndex',
@@ -116,6 +120,13 @@ export default {
       img.loading = true
       collectImage(img.id, !img.is_collected).then(res => {
         img.is_collected = !img.is_collected
+        img.loading = false
+      })
+    },
+    onDelete (img) {
+      img.loading = true
+      deleteImage(img.id).then(res => {
+        this.loadImages(this.page)
         img.loading = false
       })
     }

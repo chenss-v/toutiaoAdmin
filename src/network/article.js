@@ -50,3 +50,16 @@ export const getArticle = (articleId) => {
     url: `/mp/v1_0/articles/${articleId}`
   })
 }
+
+export const updataCommentStauts = (articleId, allowComment) => {
+  return request({
+    method: 'PUT',
+    url: '/mp/v1_0/comments/status',
+    params: {
+      article_id: articleId
+    },
+    data: {
+      allow_comment: allowComment
+    }
+  })
+}
