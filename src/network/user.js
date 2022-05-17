@@ -14,3 +14,11 @@ export const getUserProfile = () => {
     url: '/mp/v1_0/user/profile'
   })
 }
+
+export const updataUserPhoto = data => {
+  return request({
+    method: 'PATCH',
+    url: '/mp/v1_0/user/photo',
+    data
+  })
+}
