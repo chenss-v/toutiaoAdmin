@@ -53,7 +53,7 @@
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="onUpdataPhoto">确 定</el-button>
+        <el-button type="primary" @click="onUpdataPhoto" :loading="updataPhotoLoading">确 定</el-button>
       </span>
     </el-dialog>
 
@@ -89,7 +89,8 @@ export default {
       },
       dialogVisible: false,
       previewImage: '',
-      cropper: null
+      cropper: null,
+      updataPhotoLoading: false
     }
   },
   components: {
@@ -136,12 +137,18 @@ export default {
       this.cropper.destroy()
     },
     onUpdataPhoto () {
+      this.updataPhotoLoading = true
       this.cropper.getCroppedCanvas().toBlob(fild => {
         const fd = new FormData()
         fd.append('photo', fild)
         updataUserPhoto(fd).then(res => {
           this.dialogVisible = false
           this.user.photo = window.URL.createObjectURL(fild)
+          this.updataPhotoLoading = false
+          this.$message({
+            type: 'success',
+            message: '更新头像成功'
+          })
         })
       })
     }
