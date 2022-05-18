@@ -22,3 +22,11 @@ export const updataUserPhoto = data => {
     data
   })
 }
+
+export const updataUserProfile = data => {
+  return request({
+    method: 'PATCH',
+    url: '/mp/v1_0/user/profile',
+    data
+  })
+}

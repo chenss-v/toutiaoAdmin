@@ -9,24 +9,24 @@
       </div>
       <el-row>
         <el-col :span="15">
-          <el-form ref="form" :model="form" label-width="80px">
+          <el-form ref="form" :model="user" :rules="formRules" label-width="80px">
             <el-form-item label="编号：">
               {{ user.id }}
             </el-form-item>
             <el-form-item label="手机：">
               {{ user.mobile }}
             </el-form-item>
-            <el-form-item label="媒体名称:">
+            <el-form-item label="媒体名称:" prop="name">
               <el-input v-model="user.name"></el-input>
             </el-form-item>
-            <el-form-item label="媒体介绍:">
+            <el-form-item label="媒体介绍:" prop="intro">
               <el-input type="textarea" v-model="user.intro"></el-input>
             </el-form-item>
-            <el-form-item label="邮箱:">
+            <el-form-item label="邮箱:" prop="email">
               <el-input v-model="user.email"></el-input>
             </el-form-item>
             <el-form-item>
-              <el-button type="primary" @click="onSubmit">保存</el-button>
+              <el-button type="primary" @click="onUpdataUser" :loading="updataUserProfileLoading">保存</el-button>
             </el-form-item>
           </el-form>
         </el-col>
@@ -61,24 +61,15 @@
 </template>
 
 <script>
-import { getUserProfile, updataUserPhoto } from '@/network/user'
+import { getUserProfile, updataUserPhoto, updataUserProfile } from '@/network/user'
 import 'cropperjs/dist/cropper.css'
 import Cropper from 'cropperjs'
+import globalBus from '@/network/global-bus'
 
 export default {
   name: 'SettingIndex',
   data () {
     return {
-      form: {
-        name: '',
-        region: '',
-        date1: '',
-        date2: '',
-        delivery: false,
-        type: [],
-        resource: '',
-        desc: ''
-      },
       user: {
         email: '',
         id: null,
@@ -90,7 +81,19 @@ export default {
       dialogVisible: false,
       previewImage: '',
       cropper: null,
-      updataPhotoLoading: false
+      updataPhotoLoading: false,
+      updataUserProfileLoading: false,
+      formRules: {
+        name: [
+          { min: 1, max: 7, message: '长度在 1 到 7 个字符', trigger: 'blur' }
+        ],
+        intro: [
+          { required: true, message: '请填写媒体介绍', trigger: 'blur' }
+        ],
+        email: [
+          { required: true, message: '请填写媒体介绍', trigger: 'blur' }
+        ]
+      }
     }
   },
   components: {
@@ -100,8 +103,21 @@ export default {
     this.loadUser()
   },
   methods: {
-    onSubmit () {
-      console.log('submit!')
+    onUpdataUser () {
+      this.updataUserProfileLoading = true
+      const { name, intro, email } = this.user
+      updataUserProfile({
+        name,
+        intro,
+        email
+      }).then(res => {
+        this.$message({
+          type: 'success',
+          message: '保存成功'
+        })
+        this.updataUserProfileLoading = false
+        globalBus.$emit('updata-user', this.user)
+      })
     },
     loadUser () {
       getUserProfile().then(res => {
@@ -122,15 +138,6 @@ export default {
         viewMode: 1,
         dragMode: 'none',
         cropBoxResizable: false
-        // crop (event) {
-        //   console.log(event.detail.x)
-        //   console.log(event.detail.y)
-        //   console.log(event.detail.width)
-        //   console.log(event.detail.height)
-        //   console.log(event.detail.rotate)
-        //   console.log(event.detail.scaleX)
-        //   console.log(event.detail.scaleY)
-        // }
       })
     },
     onDialogClosed () {
@@ -149,6 +156,7 @@ export default {
             type: 'success',
             message: '更新头像成功'
           })
+          globalBus.$emit('updata-user', this.user)
         })
       })
     }

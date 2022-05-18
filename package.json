@@ -11,6 +11,7 @@
     "axios": "^0.21.1",
     "core-js": "^2.6.5",
     "cropperjs": "^1.5.12",
+    "echarts": "^5.3.2",
     "element-tiptap": "^1.27.1",
     "element-ui": "^2.15.2",
     "json-bigint": "^1.0.0",

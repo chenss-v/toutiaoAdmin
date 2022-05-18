@@ -21,6 +21,7 @@
 
 <script>
 import { getUserProfile } from '@/network/user'
+import globalBus from '@/network/global-bus'
 
 export default {
   data () {
@@ -31,6 +32,10 @@ export default {
   components: {},
   created () {
     this.loadUserPrlfile()
+    globalBus.$on('updata-user', (data) => {
+      this.user.name = data.name
+      this.user.photo = data.photo
+    })
   },
   methods: {
     loadUserPrlfile () {
