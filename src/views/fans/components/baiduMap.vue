@@ -7,6 +7,7 @@
 <script>
 import * as echarts from 'echarts'
 import 'echarts/dist/extension/bmap.min.js'
+
 export default {
   name: 'baiduMapIndex',
   components: {

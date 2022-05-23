@@ -8,6 +8,7 @@
 <script>
 import * as echarts from 'echarts'
 import BaiduMap from './components/baiduMap.vue'
+
 export default {
   name: 'FansIndex',
   components: {
