@@ -1,7 +1,7 @@
 <template>
   <div class="">
     <div class="cover-wrap" @click="showCoverSelect">
-      <img class="cover-image" src="">
+      <img class="cover-image" ref="cover-image">
     </div>
 
     <el-dialog
@@ -10,19 +10,24 @@
       width="30%"
       append-to-body
       >
-      <el-tabs v-model="activeName" @tab-click="handleClick">
+      <el-tabs v-model="activeName">
         <el-tab-pane label="素材库" name="first">1</el-tab-pane>
-        <el-tab-pane label="上传图片" name="second">2</el-tab-pane>
+        <el-tab-pane label="上传图片" name="second">
+          <input type="file" ref="file" @change="onFileChange">
+          <img src="" width="100" alt="" ref="preview-image">
+        </el-tab-pane>
       </el-tabs>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+        <el-button type="primary" @click="onCoverVisible">确 定</el-button>
       </span>
     </el-dialog>
   </div>
 </template>
 
 <script>
+import { uploadImage } from '@/network/image'
+
 export default {
   name: 'UploadCover',
   data () {
@@ -40,6 +45,26 @@ export default {
   methods: {
     showCoverSelect () {
       this.dialogVisible = true
+    },
+    onFileChange () {
+      const file = this.$refs.file.files[0]
+      const blob = window.URL.createObjectURL(file)
+      this.$refs['preview-image'].src = blob
+    },
+    onCoverVisible () {
+      if (this.activeName === 'second') {
+        const file = this.$refs.file.files[0]
+        if (!file) {
+          this.$message('请选择文件')
+          return
+        }
+        const fd = new FormData()
+        fd.append('image', file)
+        uploadImage(fd).then(res => {
+          this.dialogVisible = false
+          this.$refs['cover-image'].src = res.data.data.url
+        })
+      }
     }
   }
 }
