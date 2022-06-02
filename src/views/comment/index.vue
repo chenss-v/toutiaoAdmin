@@ -65,7 +65,6 @@
 
 <script>
 import { getActicles, updataCommentStauts } from '@/network/article'
-
 export default {
   name: 'CommentIndex',
   data () {
@@ -77,7 +76,6 @@ export default {
     }
   },
   components: {
-
   },
   created () {
     this.loadActicles()

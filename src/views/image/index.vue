@@ -67,7 +67,6 @@
 
 <script>
 import { getImage, collectImage, deleteImage } from '@/network/image'
-
 export default {
   name: 'ImageIndex',
   data () {
@@ -85,7 +84,6 @@ export default {
     }
   },
   components: {
-
   },
   created () {
     this.loadImages(1)

@@ -1,7 +1,7 @@
 <template>
   <div class="">
     <div class="cover-wrap" @click="showCoverSelect">
-      <img class="cover-image" ref="cover-image">
+      <img class="cover-image" ref="cover-image" :src="coverImage">
     </div>
 
     <el-dialog
@@ -13,13 +13,13 @@
       <el-tabs v-model="activeName">
         <el-tab-pane label="素材库" name="first">1</el-tab-pane>
         <el-tab-pane label="上传图片" name="second">
-          <input type="file" ref="file" @change="onFileChange">
-          <img src="" width="100" alt="" ref="preview-image">
+          <input type="file" @change="onFileChange" ref="file">
+          <img height="100" src="" alt="" ref="preview-image">
         </el-tab-pane>
       </el-tabs>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="onCoverVisible">确 定</el-button>
+        <el-button type="primary" @click="onCoverConfirm">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -27,7 +27,6 @@
 
 <script>
 import { uploadImage } from '@/network/image'
-
 export default {
   name: 'UploadCover',
   data () {
@@ -36,11 +35,10 @@ export default {
       activeName: 'second'
     }
   },
+  props: ['cover-image'],
   components: {
-
   },
   created () {
-
   },
   methods: {
     showCoverSelect () {
@@ -48,10 +46,12 @@ export default {
     },
     onFileChange () {
       const file = this.$refs.file.files[0]
+      // 预览图片
       const blob = window.URL.createObjectURL(file)
       this.$refs['preview-image'].src = blob
+      // this.$refs.file.values = ''
     },
-    onCoverVisible () {
+    onCoverConfirm () {
       if (this.activeName === 'second') {
         const file = this.$refs.file.files[0]
         if (!file) {
@@ -61,8 +61,12 @@ export default {
         const fd = new FormData()
         fd.append('image', file)
         uploadImage(fd).then(res => {
+          console.log(res)
           this.dialogVisible = false
           this.$refs['cover-image'].src = res.data.data.url
+
+          // 将图片地址发送给父组件
+          this.$emit('updata-cover', res.data.data.url)
         })
       }
     }

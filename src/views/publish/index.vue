@@ -22,7 +22,12 @@
                 <el-radio :label="-1">自动</el-radio>
                 </el-radio-group>
                 <template v-if="article.cover.type > 0">
-                  <upload-cover  :key="cover" v-for="cover in article.cover.type"/>
+                  <upload-cover
+                    :key="cover"
+                    v-for="(cover, index) in article.cover.type"
+                    @updata-cover="onUpdataCover(index, $event)"
+                    :cover-image="article.cover.images[index]"
+                    />
                 </template>
             </el-form-item>
             <el-form-item label="频道：" prop="channel_id">
@@ -61,7 +66,6 @@ import {
   TextColor
 } from 'element-tiptap'
 import 'element-tiptap/lib/index.css'
-
 export default {
   name: 'PublishIndex',
   data () {
@@ -128,14 +132,13 @@ export default {
   },
   created () {
     this.loadChannels()
-
     if (this.$route.query.id) {
       this.loadArticle()
     }
   },
   methods: {
     onSubmit (draft = false) {
-      this.$refs['publish-form'].validator(valid => {
+      this.$refs['publish-form'].validate(valid => {
         if (!valid) {
           return
         }
@@ -168,6 +171,10 @@ export default {
       getArticle(this.$route.query.id).then(res => {
         this.article = res.data.data
       })
+    },
+    onUpdataCover (index, url) {
+      console.log('onUpdataCover', url)
+      this.article.cover.images[index] = url
     }
   }
 }
