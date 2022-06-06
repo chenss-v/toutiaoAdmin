@@ -1,7 +1,7 @@
 <template>
   <div class="">
     <div class="cover-wrap" @click="showCoverSelect">
-      <img class="cover-image" ref="cover-image" :src="coverImage">
+      <img class="cover-image" ref="cover-image" :src="value">
     </div>
 
     <el-dialog
@@ -11,7 +11,9 @@
       append-to-body
       >
       <el-tabs v-model="activeName">
-        <el-tab-pane label="素材库" name="first">1</el-tab-pane>
+        <el-tab-pane label="素材库" name="first">
+          <ImageList :is-show-add="false" :is-show-action="false" />
+        </el-tab-pane>
         <el-tab-pane label="上传图片" name="second">
           <input type="file" @change="onFileChange" ref="file">
           <img height="100" src="" alt="" ref="preview-image">
@@ -27,6 +29,8 @@
 
 <script>
 import { uploadImage } from '@/network/image'
+import ImageList from '../../image/components/image-list'
+
 export default {
   name: 'UploadCover',
   data () {
@@ -35,8 +39,10 @@ export default {
       activeName: 'second'
     }
   },
-  props: ['cover-image'],
+  props: ['value'],
+  // props: ['cover-image'],
   components: {
+    ImageList
   },
   created () {
   },
@@ -61,12 +67,12 @@ export default {
         const fd = new FormData()
         fd.append('image', file)
         uploadImage(fd).then(res => {
-          console.log(res)
           this.dialogVisible = false
           this.$refs['cover-image'].src = res.data.data.url
 
           // 将图片地址发送给父组件
-          this.$emit('updata-cover', res.data.data.url)
+          this.$emit('input', res.data.data.url)
+          // this.$emit('updata-cover', res.data.data.url)
         })
       }
     }

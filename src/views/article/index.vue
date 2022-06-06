@@ -7,7 +7,7 @@
           <el-breadcrumb-item>内容管理</el-breadcrumb-item>
         </el-breadcrumb>
       </div>
-      <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
+      <el-form :model="ruleForm" ref="ruleForm" label-width="100px" class="demo-ruleForm">
         <el-form-item label="状态" prop="resource">
           <el-radio-group v-model="status">
             <el-radio :label="null">全部</el-radio>
