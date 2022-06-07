@@ -1,6 +1,6 @@
 <template>
     <el-menu
-      default-active="/home"
+      :default-active="$route.path"
       background-color="#002033"
       text-color="#fff"
       active-text-color="#ffd04b"

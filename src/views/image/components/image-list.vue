@@ -10,8 +10,16 @@
     </div>
 
     <el-row :gutter="10">
-      <el-col class="image-item" :xs="12" :lg="4" :md="6" :sm="6" v-for="(img, index) in images" :key="index">
+      <el-col
+        class="image-item"
+        :xs="12" :lg="4"
+        :md="6" :sm="6"
+        v-for="(img, index) in images"
+        :key="index"
+        @click.native="selected = index"
+      >
         <el-image style="height: 100px" :src="img.url" fit="cover"></el-image>
+        <div class="selected" v-if="isShowSelected && selected === index"></div>
         <div class="image-action" v-if="isShowAction">
           <el-button
             type="warning"
@@ -34,6 +42,7 @@
     </el-row>
 
     <el-pagination
+      class="image-pagination"
       layout="prev, pager, next"
       background
       :total="totalCount"
@@ -75,7 +84,8 @@ export default {
       },
       totalCount: 0,
       pageSize: 20,
-      page: 1
+      page: 1,
+      selected: null
     }
   },
   props: {
@@ -86,6 +96,10 @@ export default {
     isShowAction: {
       type: Boolean,
       default: true
+    },
+    isShowSelected: { // 素材图片 被选择 默认不显示
+      type: Boolean,
+      default: false
     }
   },
   components: {
@@ -138,25 +152,33 @@ export default {
 </script>
 
 <style scoped lang="less">
-.action-head{
-  padding-bottom: 20px;
-  display: flex;
-  justify-content: space-between;
+.image-pagination{
+  float: right;
+  padding: 20px 0;
 }
 .image-item{
   position: relative;
 }
 .image-action{
-  height: 40px;
-  background-color: rgba(204, 204, 204, .5);
+  font-size: 22px;
+  height: 33px;
+  color: #ccc;
   position: absolute;
-  bottom: 4px;
-  left: 5px;
-  right: 5px;
-  font-size: 25px;
+  left: 10px;
+  right: 10px;
+  bottom: 14px;
   display: flex;
   justify-content: space-evenly;
   align-items: center;
-  color: #fff;
+  background-color: rgba(0, 0, 0, .3);
+}
+.selected {
+  background: url('./selected.png') no-repeat;
+  background-size: cover;
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
 }
 </style>

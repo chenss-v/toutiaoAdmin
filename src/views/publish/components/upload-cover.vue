@@ -1,22 +1,21 @@
 <template>
-  <div class="">
-    <div class="cover-wrap" @click="showCoverSelect">
+  <div class="upload-cover" @click="onChange">
+    <div class="cover-wrap">
       <img class="cover-image" ref="cover-image" :src="value">
     </div>
 
     <el-dialog
-      title="选择封面"
+      title="提示"
       :visible.sync="dialogVisible"
-      width="30%"
       append-to-body
       >
-      <el-tabs v-model="activeName">
+      <el-tabs v-model="activeName" type="card">
         <el-tab-pane label="素材库" name="first">
-          <ImageList :is-show-add="false" :is-show-action="false" />
+          <ImageList :is-show-add="false" :is-show-action="false" is-show-selected ref="image-list" />
         </el-tab-pane>
         <el-tab-pane label="上传图片" name="second">
           <input type="file" @change="onFileChange" ref="file">
-          <img height="100" src="" alt="" ref="preview-image">
+          <img class="file-image" ref="preview-image">
         </el-tab-pane>
       </el-tabs>
       <span slot="footer" class="dialog-footer">
@@ -47,7 +46,8 @@ export default {
   created () {
   },
   methods: {
-    showCoverSelect () {
+    // 打开对话框
+    onChange () {
       this.dialogVisible = true
     },
     onFileChange () {
@@ -74,6 +74,17 @@ export default {
           this.$emit('input', res.data.data.url)
           // this.$emit('updata-cover', res.data.data.url)
         })
+      } else if (this.activeName === 'first') {
+        const imageList = this.$refs['image-list']
+        const selected = imageList.selected // 拿到组件内用户选择的图片index
+        if (selected === null) { // 没选就提示 并结束执行
+          this.$message('请选择图片封面')
+          return
+        }
+        // 选择了图片 确定 则执行
+        this.dialogVisible = false // 关闭对话框
+        // console.log(selected)
+        this.$emit('input', imageList.images[selected].url) // 把选择的图片的按数据images内对应index拿到url 通过自定义事件传给父组件
       }
     }
   }
@@ -89,5 +100,15 @@ export default {
     height: 120px;
     max-width: 100%;
   }
+}
+.file-image {
+  font-size: 30px;
+  width: 150px;
+  height: 150px;
+  margin: 0 auto;
+  // border: 1px dashed #ccc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>
