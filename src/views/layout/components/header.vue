@@ -12,7 +12,7 @@
                 <i class="el-icon-arrow-down el-icon--right"></i>
             </div>
             <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item>设置</el-dropdown-item>
+                <el-dropdown-item @click.native="onGo">设置</el-dropdown-item>
                 <el-dropdown-item @click.native="onLogout">退出登录</el-dropdown-item>
             </el-dropdown-menu>
         </el-dropdown>
@@ -57,6 +57,9 @@ export default {
           message: '已取消退出'
         })
       })
+    },
+    onGo () {
+      this.$router.push('/settings')
     }
   }
 }
